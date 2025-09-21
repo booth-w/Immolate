@@ -70,8 +70,7 @@ public:
                 std::lock_guard<std::mutex> lock(mtx);
                 highScore = result;
                 foundSeed = s;
-                std::cout << "Found seed: " << s.tostring() << " (" << result << ")"
-                  << std::endl;
+                std::cout << s.tostring() << std::endl;
                 if (exitOnFind) {
                     found = true;
                     return;

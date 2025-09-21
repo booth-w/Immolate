@@ -176,6 +176,36 @@ long filter_test(Instance inst) {
   return 0;
 }
 
+long filter_cc_in_buff(Instance inst) {
+	bool blueprint = false;
+
+	for (int i = 0; i < 2; i++) {
+		ShopItem item = inst.nextShopItem(1);
+		if (item.item == Item::Blueprint) {
+			blueprint = true;
+			break;
+		};
+	}
+
+	if (!blueprint) {
+		return 0;
+	}
+
+	for (int p = 0; p < 2; p++) {
+		Pack pack = packInfo(inst.nextPack(1));
+		if (pack.type == Item::Buffoon_Pack) {
+			std::vector<JokerData> packContents = inst.nextBuffoonPack(pack.size, 1);
+			for (int x = 0; x < pack.size; x++) {
+				if (packContents[x].joker == Item::Credit_Card) {
+					return 1;
+				}
+			}
+		}
+	}
+
+	return 0;
+}
+
 // Benchmark function
 // Runs 1 billion seeds of perkeo observatory
 // And prints total time and seeds per second
@@ -268,14 +298,26 @@ void benchmark_blank() {
             << 100000000 / ((end - start) / 1000.0) << "\n";
 }
 
+void benchmark_cc_in_buff() {
+	long start = std::chrono::duration_cast<std::chrono::milliseconds>(
+                   std::chrono::system_clock::now().time_since_epoch())
+                   .count();
+	Search search(filter_cc_in_buff, "IMMOLATE", 16, 100000000);
+	search.highScore = 10; // No output
+	search.printDelay = 100000000000;
+	search.search();
+  long end = std::chrono::duration_cast<std::chrono::milliseconds>(
+                 std::chrono::system_clock::now().time_since_epoch())
+                 .count();
+	std::cout << "-------CC IN BUFF-------\n";
+	std::cout << "Total time: " << end - start << "ms\n";
+	std::cout << "Seeds per second: " << std::fixed << std::setprecision(0)
+            << 100000000 / ((end - start) / 1000.0) << "\n";
+}
+
 int main() {
-  /*benchmark_single();
-  benchmark_quick();
-  benchmark_quick_lucky();
-  benchmark_blank();
-  benchmark();*/
-  Search search(filter_cavendish, "11111J31", 8, 2318107019761);
-  search.highScore = 5;
+	// benchmark_cc_in_buff();
+	Search search(filter_cc_in_buff, "11111111", 16, 2318107019761);
   search.printDelay = 2318107019761;
   search.search();
   return 1;
